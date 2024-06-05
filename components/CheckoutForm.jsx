@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
 import styled from "@emotion/styled";
 import axios from "axios";
 import Web3 from "web3";
@@ -22,56 +21,9 @@ const CardElementContainer = styled.div`
   }
 `;
 
-const DisabledSubmitButton = styled(SubmitButton)`
-  cursor: not-allowed;
-  opacity: 0.6;
-`;
-
 const ErrorContainer = styled.div`
   margin-bottom: 14px;
   color: #f6a4eb;
-`;
-
-const FormFieldContainer = styled.div`
-  display: block;
-  align-items: center;
-  margin-left: 15px;
-  border-top: 1px solid #819efc;
-
-  &:first-of-type {
-    border-top: none;
-  }
-`;
-
-const Label = styled.label`
-  width: 20%;
-  min-width: 70px;
-  padding: 11px 0;
-  color: white;
-  overflow: hidden;
-  font-size: 16px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  border-right: 1px solid #819efc;
-`;
-
-const Input = styled.input`
-  font-size: 16px;
-  width: 100%;
-  padding: 11px 20px 11px 20px;
-  margin-right: 20px;
-  color: black;
-  background-color: white;
-  animation: 1ms void-animation-out;
-  border-radius: 4px;
-  &::placeholder {
-    color: grey;
-  }
-`;
-
-const InlineFieldContainer = styled.div`
-  display: inline-block;
-  vertical-align: top;
 `;
 
 const IconContainer = styled.div`
@@ -152,8 +104,6 @@ const CheckoutForm = ({ price, onSuccessfulCheckout }) => {
   const [isProcessing, setProcessingTo] = useState(false);
   const [cardError, setCardError] = useState("");
   const [addressError, setAddressError] = useState("");
-  const [expiryError, setExpiryError] = useState("");
-  const [nameError, setNameError] = useState("");
   const [isFormValid, setFormValid] = useState(false);
   const [cryptoAddress, setCryptoAddress] = useState("");
   const [addressType, setAddressType] = useState(""); // New state for address type
@@ -168,46 +118,24 @@ const CheckoutForm = ({ price, onSuccessfulCheckout }) => {
     "543275", "543276", "544212", "553315", "559900", "601140"
   ];
 
-  const validateExpiryDate = (expiry) => {
-    if (expiry.length !== 4) return false;
-    const month = parseInt(expiry.slice(0, 2), 10);
-    const year = parseInt(expiry.slice(2, 4), 10) + 2000;
-    const now = new Date();
-    const expiryDate = new Date(year, month - 1);
-
-    return month >= 1 && month <= 12 && expiryDate >= new Date(now.getFullYear(), now.getMonth(), 1);
-  };
-
-  const validateName = (name) => {
-    const parts = name.trim().split(/\s+/);
-    return parts.length >= 2 && parts.every(part => part.length >= 2);
-  };
 
   const validateForm = (address) => {
-    const isExpiryValid = validateExpiryDate(expiry);
-    const isNameValid = validateName(name);
-
-    setExpiryError(isExpiryValid ? "" : "Invalid expiry date.");
-    setNameError(isNameValid ? "" : "Name must include first and last name, with at least 2 letters each.");
-
-    return isExpiryValid && isNameValid && address !== '' && !addressError;
+    return address !== '' && !addressError;
   };
 
   const handleCryptoAddressChange = async (event) => {
     const { value } = event.target;
     setCryptoAddress(value);
-
+  
     const result = await validateBtcOrEthAddress(value, setAddressType); // Pass setAddressType to update address type
-
+  
     let addressError = "";
     if (!result.isValid) {
       addressError = result.message;
     }
-
+  
     setAddressError(addressError);
-
-    const isValid = validateForm(value);
-    setFormValid(isValid && !cardError && !addressError && !expiryError && !nameError);
+    setFormValid(value !== '' && !addressError); // Update form validity based on the address value and addressError
   };
 
   const handleFormSubmit = async (ev) => {
@@ -296,9 +224,7 @@ const CheckoutForm = ({ price, onSuccessfulCheckout }) => {
           <ErrorContainer>
             {addressError && <div style={{ marginTop: '28px' }}><CheckoutError>{addressError}</CheckoutError></div>}
             {cardError && <div style={{ marginTop: '30px' }}><CheckoutError>{cardError}</CheckoutError></div>}
-            {expiryError && <div style={{ marginTop: '30px' }}><CheckoutError>{expiryError}</CheckoutError></div>}
-            {nameError && <div style={{ marginTop: '30px' }}><CheckoutError>{nameError}</CheckoutError></div>}
-          </ErrorContainer>
+            </ErrorContainer>
           <SubmitButton disabled={isProcessing || !stripe || !isFormValid}>
             {isProcessing ? "Processing..." : `Pay $${price}`}
           </SubmitButton>
