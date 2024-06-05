@@ -1,0 +1,8 @@
+/* MainPage.module.css */
+.logoContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px; /* Adjust as needed for spacing */
+  }
+  
