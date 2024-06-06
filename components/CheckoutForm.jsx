@@ -121,7 +121,12 @@ const CheckoutForm = ({ price, onSuccessfulCheckout }) => {
   ];
 
   const validateForm = () => {
-    return cryptoAddress !== '' && !addressError && email !== '' && name !== '';
+    return cryptoAddress !== '' && !addressError && email !== '' && name !== '' && validateEmail(email);
+  };
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
   const handleCryptoAddressChange = async (event) => {
