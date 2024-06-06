@@ -104,9 +104,11 @@ const CheckoutForm = ({ price, onSuccessfulCheckout }) => {
   const [isProcessing, setProcessingTo] = useState(false);
   const [cardError, setCardError] = useState("");
   const [addressError, setAddressError] = useState("");
-  const [isFormValid, setFormValid] = useState(false);
   const [cryptoAddress, setCryptoAddress] = useState("");
   const [addressType, setAddressType] = useState(""); // New state for address type
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [isFormValid, setFormValid] = useState(false);
 
   const stripe = useStripe();
   const elements = useElements();
@@ -118,9 +120,8 @@ const CheckoutForm = ({ price, onSuccessfulCheckout }) => {
     "543275", "543276", "544212", "553315", "559900", "601140"
   ];
 
-
-  const validateForm = (address) => {
-    return address !== '' && !addressError;
+  const validateForm = () => {
+    return cryptoAddress !== '' && !addressError && email !== '' && name !== '';
   };
 
   const handleCryptoAddressChange = async (event) => {
@@ -135,7 +136,17 @@ const CheckoutForm = ({ price, onSuccessfulCheckout }) => {
     }
   
     setAddressError(addressError);
-    setFormValid(value !== '' && !addressError); // Update form validity based on the address value and addressError
+    setFormValid(validateForm()); // Update form validity based on the address value and addressError
+  };
+
+  const handleEmailChange = (event) => {
+    setEmail(event.target.value);
+    setFormValid(validateForm());
+  };
+
+  const handleNameChange = (event) => {
+    setName(event.target.value);
+    setFormValid(validateForm());
   };
 
   const handleFormSubmit = async (ev) => {
@@ -147,6 +158,8 @@ const CheckoutForm = ({ price, onSuccessfulCheckout }) => {
       const { data: clientSecret } = await axios.post("/api/payment_intents", {
         amount: price * 100,
         cryptoAddress,  // Sending crypto address along with the request
+        email,
+        name
       });
 
       const cardElement = elements.getElement(CardElement);
@@ -154,6 +167,10 @@ const CheckoutForm = ({ price, onSuccessfulCheckout }) => {
       const { error, paymentMethod } = await stripe.createPaymentMethod({
         type: "card",
         card: cardElement,
+        billing_details: {
+          email,
+          name,
+        },
       });
 
       if (error) {
@@ -220,11 +237,29 @@ const CheckoutForm = ({ price, onSuccessfulCheckout }) => {
               {addressType === 'BTC' && <BtcIcon src="/btc-icon.svg" alt="BTC" />}
               {addressType === 'ETH' && <EthIcon src="/eth-icon.svg" alt="ETH" />}
             </IconContainer>
+            <input
+              type="text"
+              name="name"
+              placeholder="Name"
+              value={name}
+              onChange={handleNameChange}
+              required
+              style={{ marginTop: '14px', padding: '11px 20px', width: '100%', borderRadius: '4px', fontSize: '16px' }}
+            />
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={email}
+              onChange={handleEmailChange}
+              required
+              style={{ marginTop: '14px', padding: '11px 20px', width: '100%', borderRadius: '4px', fontSize: '16px' }}
+            />
           </div>
           <ErrorContainer>
             {addressError && <div style={{ marginTop: '28px' }}><CheckoutError>{addressError}</CheckoutError></div>}
             {cardError && <div style={{ marginTop: '30px' }}><CheckoutError>{cardError}</CheckoutError></div>}
-            </ErrorContainer>
+          </ErrorContainer>
           <SubmitButton disabled={isProcessing || !stripe || !isFormValid}>
             {isProcessing ? "Processing..." : `Pay $${price}`}
           </SubmitButton>
