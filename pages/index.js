@@ -8,7 +8,7 @@ import CheckoutForm from "../components/CheckoutForm";
 import Image from 'next/image';
 
 const MainPage = props => {
-  const [donuts, setDonuts] = useState([20, 25, 50, 75, 100, 150, 200, 250, 300, 350, 400, 450, 500]);
+  const [donuts, setDonuts] = useState([50, 75, 100, 150, 200, 250, 300, 350, 400, 450, 500]);
   const [selectedDonut, setSelectedDonut] = useState(0);
   const handleSelectedDonut = ( value ) => {
     setSelectedDonut(value);

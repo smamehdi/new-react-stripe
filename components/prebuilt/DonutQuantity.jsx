@@ -38,7 +38,7 @@ const ErrorContainer = styled.div`
 `;
 
 const DonutQuantity = ({ onSelect }) => {
-  const values = [20, 25, 50, 75, 100, 150, 200, 250, 300, 350, 400, 450, 500];
+  const values = [50, 75, 100, 150, 200, 250, 300, 350, 400, 450, 500];
   const [selectedButton, setSelectedButton] = useState(null);
   const [showExtraButtons, setShowExtraButtons] = useState(false);
 
