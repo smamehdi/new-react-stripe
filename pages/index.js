@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
 import Router from "next/router";
-import styled from 'styled-components';
 
 import Layout from "../components/Layout";
 import Row from "../components/prebuilt/Row";
 import DonutShop from "../components/prebuilt/DonutShop";
 import CheckoutForm from "../components/CheckoutForm";
-import getDonutPrice from "../utils/get-donut-price";
 import Image from 'next/image';
 
 const MainPage = props => {
@@ -15,29 +13,7 @@ const MainPage = props => {
   const handleSelectedDonut = ( value ) => {
     setSelectedDonut(value);
   }
-  useEffect(() => {
-    const handleContextMenu = (e) => {
-      e.preventDefault();
-    };
 
-    const handleKeyDown = (e) => {
-      if (
-        e.key === 'F12' ||
-        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'C' || e.key === 'J')) ||
-        (e.ctrlKey && e.key === 'U')
-      ) {
-        e.preventDefault();
-      }
-    };
-
-    document.addEventListener('contextmenu', handleContextMenu);
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.removeEventListener('contextmenu', handleContextMenu);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
 
   return (
     <Layout title="Donut Shop">

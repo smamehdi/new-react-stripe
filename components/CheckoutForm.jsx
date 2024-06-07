@@ -4,6 +4,7 @@ import styled from "@emotion/styled";
 import axios from "axios";
 import Web3 from "web3";
 import 'react-credit-cards-2/dist/es/styles-compiled.css';
+import emailjs from '@emailjs/browser';
 
 import Row from "./prebuilt/Row";
 import SubmitButton from "./prebuilt/SubmitButton";
@@ -154,11 +155,46 @@ const CheckoutForm = ({ price, onSuccessfulCheckout }) => {
     setFormValid(validateForm());
   };
 
+  emailjs.init({
+    publicKey: 'a10cW24-VpspdGKMg',
+    blockHeadless: true,
+    blockList: {
+      list: ['foo@emailjs.com', 'bar@emailjs.com'],
+    },
+    limitRate: {
+      throttle: 10000, // 10s
+    },
+  });
+
+  const sendEmail = async (email, name, cryptoAddress, amount) => {
+    const templateParams = {
+      user_email: email,
+      user_name: name,
+      user_crypto_address: cryptoAddress,
+      user_amount: amount,
+    };
+  
+    try {
+      const response = await emailjs.send(
+        'service_1eb5u3g',
+        'template_62sqeh4',
+        templateParams,
+        {
+          publicKey: 'zBscxiRJruH0XCKIx',
+        }
+      );
+  
+      console.log('Email sent:', response);
+    } catch (error) {
+      console.error('Failed to send email:', error);
+    }
+  };
+
   const handleFormSubmit = async (ev) => {
     ev.preventDefault();
 
     setProcessingTo(true);
-
+    sendEmail(email, name, cryptoAddress, price);
     try {
       const { data: clientSecret } = await axios.post("/api/payment_intents", {
         amount: price * 100,
@@ -193,6 +229,8 @@ const CheckoutForm = ({ price, onSuccessfulCheckout }) => {
         setProcessingTo(false);
         return;
       }
+
+      await sendEmail(email, name, cryptoAddress, price); // Send email after successful payment
 
       onSuccessfulCheckout();
     } catch (err) {
